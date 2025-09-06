@@ -5,6 +5,17 @@ import argparse
 import base64
 from io import BytesIO
 
+# Private global variable containing the prompt for the OpenAI model.
+# The prompt requests a markdown description suitable for RAG systems
+# and instructs the model to output only the page content without any
+# additional commentary or questions.
+_PROMPT = (
+    "Please extract the text from this image and provide a description in markdown "
+    "format suitable for use with Retrieval-Augmented Generation (RAG) systems. "
+    "Output only the content of the page, without any additional information, "
+    "questions, or commentary."
+)
+
 class PDFToTextConverter:
     def __init__(self, pdf_path, api_key=None, base_url=None, model=None):
         self.pdf_path = pdf_path
@@ -38,14 +49,13 @@ class PDFToTextConverter:
             buffer = BytesIO()
             image.save(buffer, format="PNG")
             image_bytes = buffer.getvalue()
-            prompt = "Extract text from this image:"
             b64_image = base64.b64encode(image_bytes).decode("utf-8")
             
             response = client.chat.completions.create(
                 model=self.model,
                 messages=[
                     {"role": "user", "content": [
-                        {"type": "text", "text": prompt},
+                        {"type": "text", "text": _PROMPT},
                         {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64_image}"}}
                     ]}
                 ]
