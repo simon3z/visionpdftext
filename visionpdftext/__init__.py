@@ -9,10 +9,10 @@ from io import BytesIO
 # and instructs the model to output only the page content without any
 # additional commentary or questions.
 _PROMPT = (
-    "Please extract the text from this image and provide a description in markdown "
-    "format suitable for use with Retrieval-Augmented Generation (RAG) systems. "
-    "Output only the content of the page, without any additional information, "
-    "questions, or commentary."
+    "Transcribe each page of the image, including any text, tables, diagrams, or other visual elements. "
+    "Provide the transcription in markdown format suitable for use with Retrieval-Augmented Generation (RAG) systems. "
+    "Do not ask questions or commentary. "
+    "If the page is empty, do not output any text; simply skip it."
 )
 
 class PDFToTextConverter:
