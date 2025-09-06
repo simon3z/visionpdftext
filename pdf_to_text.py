@@ -3,11 +3,12 @@ from openai import OpenAI
 import os
 import argparse
 import base64
+from io import BytesIO
 
 class PDFToTextConverter:
     def __init__(self, pdf_path, output_dir='images', api_key=None, base_url=None, model=None):
         self.pdf_path = pdf_path
-        self.output_dir = output_dir
+        self.output_dir = output_dir  # kept for backward compatibility, not used
         self.api_key = api_key or os.getenv('OPENAI_API_KEY')
         self.base_url = base_url or os.getenv('OPENAI_BASE_URL') or None
         self.model = model or os.getenv('OPENAI_MODEL') or "gpt-4o-mini"
@@ -15,16 +16,12 @@ class PDFToTextConverter:
             raise ValueError("OpenAI API key is required. Please set OPENAI_API_KEY environment variable or pass it as a parameter.")
         
     def convert_pdf_to_images(self):
-        """Convert PDF to images and save them to output_dir"""
+        """Convert PDF to images and return them as a list."""
         images = convert_from_path(self.pdf_path)
-        if not os.path.exists(self.output_dir):
-            os.makedirs(self.output_dir)
-        for i, image in enumerate(images):
-            image.save(f"{self.output_dir}/page_{i+1}.png", "PNG")
-        return f"Extracted {len(images)} pages to {self.output_dir}"
+        return images
 
-    def extract_text_from_image(self, image_path):
-        """Extract text from an image using OpenAI API with optional custom base URL"""
+    def extract_text_from_image(self, image_bytes):
+        """Extract text from an image using OpenAI API with optional custom base URL."""
         client_args = {}
         if self.api_key:
             client_args['api_key'] = self.api_key
@@ -33,8 +30,7 @@ class PDFToTextConverter:
 
         client = OpenAI(**client_args)
         prompt = "Extract text from this image:"
-        with open(image_path, "rb") as image_file:
-            b64_image = base64.b64encode(image_file.read()).decode("utf-8")
+        b64_image = base64.b64encode(image_bytes).decode("utf-8")
         
         response = client.chat.completions.create(
             model=self.model,
@@ -48,29 +44,26 @@ class PDFToTextConverter:
         return response.choices[0].message.content
 
     def process(self):
-        """Process the PDF: convert to images and extract text from each image"""
+        """Process the PDF: convert to images and extract text from each image in memory."""
         # Convert PDF to images
-        conversion_result = self.convert_pdf_to_images()
-        print(conversion_result)
+        images = self.convert_pdf_to_images()
+        print(f"Extracted {len(images)} pages from PDF.")
         
         # Extract text from each image
         text_pages = []
-        if os.path.exists(self.output_dir) and os.listdir(self.output_dir):
-            for filename in sorted(os.listdir(self.output_dir)):
-                if filename.endswith('.png'):
-                    image_path = os.path.join(self.output_dir, filename)
-                    text = self.extract_text_from_image(image_path)
-                    text_pages.append(text)
-        else:
-            print("No images found. Please check the PDF path and try again.")
-            return None
-            
+        for idx, image in enumerate(images, start=1):
+            # Save image to a BytesIO buffer
+            buffer = BytesIO()
+            image.save(buffer, format="PNG")
+            image_bytes = buffer.getvalue()
+            text = self.extract_text_from_image(image_bytes)
+            text_pages.append(text)
         return text_pages
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Convert PDF to text using OpenAI API')
     parser.add_argument('pdf_path', type=str, help='Path to the PDF file')
-    parser.add_argument('--output_dir', type=str, default='images', help='Output directory for images')
+    parser.add_argument('--output_dir', type=str, default='images', help='Output directory for images (unused in memory mode)')
     parser.add_argument('--api_key', type=str, help='OpenAI API key (can also be set via environment variable)')
     parser.add_argument('--base_url', type=str, help='Base URL for OpenAI API (optional)')
     parser.add_argument('--model', type=str, default=None, help='OpenAI model to use (default: gpt-4o-mini)')
