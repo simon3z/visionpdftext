@@ -1,7 +1,7 @@
 import argparse
 from . import PDFToTextConverter
 
-if __name__ == "__main__":
+def main() -> None:
     parser = argparse.ArgumentParser(
         prog="visionpdftext",
         description='Convert PDF to text using OpenAI API'
@@ -23,3 +23,6 @@ if __name__ == "__main__":
     # Iterate over the generator to extract and print text page by page
     for page_num, text in converter.process():
         print(f"Page {page_num} Text:\n{text}\n")
+
+if __name__ == "__main__":
+    main()
