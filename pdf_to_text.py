@@ -43,21 +43,17 @@ class PDFToTextConverter:
         return response.choices[0].message.content
 
     def process(self):
-        """Process the PDF: convert to images and extract text from each image in memory."""
+        """Generator that yields each image's bytes so text can be extracted and printed immediately."""
         # Convert PDF to images
         images = self.convert_pdf_to_images()
         print(f"Extracted {len(images)} pages from PDF.")
         
-        # Extract text from each image
-        text_pages = []
+        # Yield each image's bytes
         for idx, image in enumerate(images, start=1):
-            # Save image to a BytesIO buffer
             buffer = BytesIO()
             image.save(buffer, format="PNG")
             image_bytes = buffer.getvalue()
-            text = self.extract_text_from_image(image_bytes)
-            text_pages.append(text)
-        return text_pages
+            yield idx, image_bytes
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Convert PDF to text using OpenAI API')
@@ -74,8 +70,8 @@ if __name__ == "__main__":
         base_url=args.base_url,
         model=args.model
     )
-    text_pages = converter.process()
 
-    if text_pages:
-        for i, text in enumerate(text_pages):
-            print(f"Page {i+1} Text:\n{text}\n")
+    # Iterate over the generator to extract and print text page by page
+    for page_num, image_bytes in converter.process():
+        text = converter.extract_text_from_image(image_bytes)
+        print(f"Page {page_num} Text:\n{text}\n")
