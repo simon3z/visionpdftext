@@ -16,6 +16,10 @@ Each page of the PDF is rendered as an image, sent to the model, and the extract
 - Simple command‑line interface.
 - Supports custom OpenAI model, API key, and base URL.
 
+## Context File
+
+The file `CONVENTIONS.md` contains the context used to instruct aider about the project's purpose and library usage. It serves as a reference for developers and contributors to understand the design decisions and conventions followed in this repository.
+
 ## Prerequisites
 
 | Requirement | Version |
