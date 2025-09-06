@@ -5,11 +5,12 @@ import argparse
 import base64
 
 class PDFToTextConverter:
-    def __init__(self, pdf_path, output_dir='images', api_key=None, base_url=None):
+    def __init__(self, pdf_path, output_dir='images', api_key=None, base_url=None, model=None):
         self.pdf_path = pdf_path
         self.output_dir = output_dir
         self.api_key = api_key or os.getenv('OPENAI_API_KEY')
         self.base_url = base_url or os.getenv('OPENAI_BASE_URL') or None
+        self.model = model or os.getenv('OPENAI_MODEL') or "gpt-4o-mini"
         if not self.api_key:
             raise ValueError("OpenAI API key is required. Please set OPENAI_API_KEY environment variable or pass it as a parameter.")
         
@@ -36,7 +37,7 @@ class PDFToTextConverter:
             b64_image = base64.b64encode(image_file.read()).decode("utf-8")
         
         response = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model=self.model,
             messages=[
                 {"role": "user", "content": [
                     {"type": "text", "text": prompt},
@@ -72,6 +73,7 @@ if __name__ == "__main__":
     parser.add_argument('--output_dir', type=str, default='images', help='Output directory for images')
     parser.add_argument('--api_key', type=str, help='OpenAI API key (can also be set via environment variable)')
     parser.add_argument('--base_url', type=str, help='Base URL for OpenAI API (optional)')
+    parser.add_argument('--model', type=str, default=None, help='OpenAI model to use (default: gpt-4o-mini)')
 
     args = parser.parse_args()
 
@@ -79,7 +81,8 @@ if __name__ == "__main__":
         pdf_path=args.pdf_path,
         output_dir=args.output_dir,
         api_key=args.api_key,
-        base_url=args.base_url
+        base_url=args.base_url,
+        model=args.model
     )
     text_pages = converter.process()
 
