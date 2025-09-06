@@ -6,9 +6,8 @@ import base64
 from io import BytesIO
 
 class PDFToTextConverter:
-    def __init__(self, pdf_path, output_dir='images', api_key=None, base_url=None, model=None):
+    def __init__(self, pdf_path, api_key=None, base_url=None, model=None):
         self.pdf_path = pdf_path
-        self.output_dir = output_dir  # kept for backward compatibility, not used
         self.api_key = api_key or os.getenv('OPENAI_API_KEY')
         self.base_url = base_url or os.getenv('OPENAI_BASE_URL') or None
         self.model = model or os.getenv('OPENAI_MODEL') or "gpt-4o-mini"
@@ -63,7 +62,6 @@ class PDFToTextConverter:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Convert PDF to text using OpenAI API')
     parser.add_argument('pdf_path', type=str, help='Path to the PDF file')
-    parser.add_argument('--output_dir', type=str, default='images', help='Output directory for images (unused in memory mode)')
     parser.add_argument('--api_key', type=str, help='OpenAI API key (can also be set via environment variable)')
     parser.add_argument('--base_url', type=str, help='Base URL for OpenAI API (optional)')
     parser.add_argument('--model', type=str, default=None, help='OpenAI model to use (default: gpt-4o-mini)')
@@ -72,7 +70,6 @@ if __name__ == "__main__":
 
     converter = PDFToTextConverter(
         pdf_path=args.pdf_path,
-        output_dir=args.output_dir,
         api_key=args.api_key,
         base_url=args.base_url,
         model=args.model
