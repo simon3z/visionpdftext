@@ -1,5 +1,7 @@
 # VisionPDFText
 
+*This project was entirely coded using aider with local deepseek-r1 8B and gpt-oss 20B running on an NVIDIA RTX 4060TI with 8GB of memory. Inference is done with llama.cpp and llama-swap.*
+
 **VisionPDFText** is a lightweight Python utility that converts PDF documents into text by leveraging the OpenAI vision API.  
 Each page of the PDF is rendered as an image, sent to the model, and the extracted text is returned in Markdown format suitable for Retrieval‑Augmented Generation (RAG) pipelines.
 
