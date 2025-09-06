@@ -5,10 +5,11 @@ import argparse
 import base64
 
 class PDFToTextConverter:
-    def __init__(self, pdf_path, output_dir='images', api_key=None):
+    def __init__(self, pdf_path, output_dir='images', api_key=None, base_url=None):
         self.pdf_path = pdf_path
         self.output_dir = output_dir
         self.api_key = api_key or os.getenv('OPENAI_API_KEY')
+        self.base_url = base_url or os.getenv('OPENAI_BASE_URL') or None
         if not self.api_key:
             raise ValueError("OpenAI API key is required. Please set OPENAI_API_KEY environment variable or pass it as a parameter.")
         
@@ -22,8 +23,14 @@ class PDFToTextConverter:
         return f"Extracted {len(images)} pages to {self.output_dir}"
 
     def extract_text_from_image(self, image_path):
-        """Extract text from an image using OpenAI API"""
-        client = OpenAI(api_key=self.api_key)
+        """Extract text from an image using OpenAI API with optional custom base URL"""
+        client_args = {}
+        if self.api_key:
+            client_args['api_key'] = self.api_key
+        if self.base_url:
+            client_args['base_url'] = self.base_url
+
+        client = OpenAI(**client_args)
         prompt = "Extract text from this image:"
         with open(image_path, "rb") as image_file:
             b64_image = base64.b64encode(image_file.read()).decode("utf-8")
@@ -64,12 +71,18 @@ if __name__ == "__main__":
     parser.add_argument('pdf_path', type=str, help='Path to the PDF file')
     parser.add_argument('--output_dir', type=str, default='images', help='Output directory for images')
     parser.add_argument('--api_key', type=str, help='OpenAI API key (can also be set via environment variable)')
-    
+    parser.add_argument('--base_url', type=str, help='Base URL for OpenAI API (optional)')
+
     args = parser.parse_args()
-    
-    converter = PDFToTextConverter(pdf_path=args.pdf_path, output_dir=args.output_dir, api_key=args.api_key)
+
+    converter = PDFToTextConverter(
+        pdf_path=args.pdf_path,
+        output_dir=args.output_dir,
+        api_key=args.api_key,
+        base_url=args.base_url
+    )
     text_pages = converter.process()
-    
+
     if text_pages:
         for i, text in enumerate(text_pages):
             print(f"Page {i+1} Text:\n{text}\n")
