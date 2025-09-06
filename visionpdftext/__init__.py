@@ -23,16 +23,11 @@ class PDFToTextConverter:
         self.model = model or os.getenv('OPENAI_MODEL') or "gpt-4o-mini"
         if not self.api_key:
             raise ValueError("OpenAI API key is required. Please set OPENAI_API_KEY environment variable or pass it as a parameter.")
-        
-    def convert_pdf_to_images(self):
-        """Convert PDF to images and return them as a list."""
-        images = convert_from_path(self.pdf_path)
-        return images
 
     def process(self):
         """Generator that yields each page number and extracted text."""
         # Convert PDF to images
-        images = self.convert_pdf_to_images()
+        images = convert_from_path(self.pdf_path)
         print(f"Extracted {len(images)} pages from PDF.")
         
         # Prepare OpenAI client once
