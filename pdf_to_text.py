@@ -19,41 +19,39 @@ class PDFToTextConverter:
         images = convert_from_path(self.pdf_path)
         return images
 
-    def extract_text_from_image(self, image_bytes):
-        """Extract text from an image using OpenAI API with optional custom base URL."""
+    def process(self):
+        """Generator that yields each page number and extracted text."""
+        # Convert PDF to images
+        images = self.convert_pdf_to_images()
+        print(f"Extracted {len(images)} pages from PDF.")
+        
+        # Prepare OpenAI client once
         client_args = {}
         if self.api_key:
             client_args['api_key'] = self.api_key
         if self.base_url:
             client_args['base_url'] = self.base_url
-
         client = OpenAI(**client_args)
-        prompt = "Extract text from this image:"
-        b64_image = base64.b64encode(image_bytes).decode("utf-8")
-        
-        response = client.chat.completions.create(
-            model=self.model,
-            messages=[
-                {"role": "user", "content": [
-                    {"type": "text", "text": prompt},
-                    {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64_image}"}}
-                ]}
-            ]
-        )
-        return response.choices[0].message.content
 
-    def process(self):
-        """Generator that yields each image's bytes so text can be extracted and printed immediately."""
-        # Convert PDF to images
-        images = self.convert_pdf_to_images()
-        print(f"Extracted {len(images)} pages from PDF.")
-        
-        # Yield each image's bytes
+        # Process each image and yield text
         for idx, image in enumerate(images, start=1):
             buffer = BytesIO()
             image.save(buffer, format="PNG")
             image_bytes = buffer.getvalue()
-            yield idx, image_bytes
+            prompt = "Extract text from this image:"
+            b64_image = base64.b64encode(image_bytes).decode("utf-8")
+            
+            response = client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "user", "content": [
+                        {"type": "text", "text": prompt},
+                        {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64_image}"}}
+                    ]}
+                ]
+            )
+            text = response.choices[0].message.content
+            yield idx, text
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Convert PDF to text using OpenAI API')
@@ -72,6 +70,5 @@ if __name__ == "__main__":
     )
 
     # Iterate over the generator to extract and print text page by page
-    for page_num, image_bytes in converter.process():
-        text = converter.extract_text_from_image(image_bytes)
+    for page_num, text in converter.process():
         print(f"Page {page_num} Text:\n{text}\n")
