@@ -97,6 +97,10 @@ Page 2 Text:
 Details about section 1...
 ```
 
+## Tested Models
+
+This project has been tested with the vision capability of **Gemma 3 4B** and **Gemma 3 12B** running locally. The same prompt and workflow work across these models, producing consistent Markdown output.
+
 ## Environment Variables
 
 You can set the following environment variables instead of passing them on the command line:
@@ -120,4 +124,3 @@ Pull requests are welcome! Please open an issue first to discuss major changes.
 ## License
 
 MIT © 2025 Federico Simoncelli
-
