@@ -32,7 +32,7 @@ Each page of the PDF is rendered as an image, sent to the model, and the extract
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/visionpdftext.git
+git clone https://github.com/simon3z/visionpdftext.git
 cd visionpdftext
 
 # Create a virtual environment (optional but recommended)
@@ -119,5 +119,5 @@ Pull requests are welcome! Please open an issue first to discuss major changes.
 
 ## License
 
-MIT © 2025 Your Name
+MIT © 2025 Federico Simoncelli
 
