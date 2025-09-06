@@ -1,0 +1,24 @@
+[project]
+name = "visionpdftext"
+version = "0.1.0"
+description = "Convert PDF documents to Markdown text using OpenAI's vision API."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [
+    { name = "Federico Simoncelli", email = "federico.simoncelli@gmail.com" }
+]
+keywords = ["pdf", "ocr", "openai", "vision", "markdown", "rag"]
+
+dependencies = [
+    "pdf2image>=1.16.0",
+    "openai>=1.0.0",
+    "pillow>=10.0.0"
+]
+
+[project.scripts]
+visionpdftext = "visionpdftext.__main__:main"
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
