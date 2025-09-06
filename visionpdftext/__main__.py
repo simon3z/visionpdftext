@@ -6,10 +6,27 @@ def main() -> None:
         prog="visionpdftext",
         description='Convert PDF to text using OpenAI API'
     )
-    parser.add_argument('pdf_path', type=str, help='Path to the PDF file')
-    parser.add_argument('--api_key', type=str, help='OpenAI API key (can also be set via environment variable)')
-    parser.add_argument('--base_url', type=str, help='Base URL for OpenAI API (optional)')
-    parser.add_argument('--model', type=str, default=None, help='OpenAI model to use (default: gpt-4o-mini)')
+    parser.add_argument(
+        'pdf_path',
+        type=str,
+        help='Path to the PDF file'
+    )
+    parser.add_argument(
+        '--api_key',
+        type=str,
+        help='OpenAI API key (can also be set via the OPENAI_API_KEY environment variable)'
+    )
+    parser.add_argument(
+        '--base_url',
+        type=str,
+        help='Base URL for OpenAI API (optional, can also be set via the OPENAI_BASE_URL environment variable)'
+    )
+    parser.add_argument(
+        '--model',
+        type=str,
+        default=None,
+        help='OpenAI model to use (default: gpt-4o-mini, can also be set via the OPENAI_MODEL environment variable)'
+    )
 
     args = parser.parse_args()
 
